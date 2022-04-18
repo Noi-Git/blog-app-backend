@@ -2,7 +2,9 @@ const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
 const dbConnect = require("./config/db/dbConnect");
-const { userRegisterCtrl } = require("./controllers/users/usersCtrl");
+const userRoutes = require( "./route/users/usersRoute" );
+const { errorHandler, notFound } = require( "./middlewares/error/errorHandler" );
+
 const app = express();
 
 dbConnect();
@@ -10,6 +12,7 @@ dbConnect();
 //Middleware --- no need to install body parser
 app.use(express.json())
 
+/*
 //step 1: create custom middleware
 const logger = (req, res, next) => {
   console.log("I am a logger!")
@@ -18,22 +21,15 @@ const logger = (req, res, next) => {
 
 //step 2: usage
 app.use(logger)
+*/
 
-//user register
-app.post("/api/users/register", userRegisterCtrl);
+//user register ---- using Users route
+app.use('/api/users', userRoutes)
 
-//user login
-app.post("/api/users/login", (req,res)=>{
-  //business logic
-  res.json({user: 'User Login'})
-})
 
-//fetch all users
-app.get("/api/users", (req,res)=>{
-  //business logic
-  res.json({user: 'Fetch all users'})
-})
-
+// == call err handler - need to call this function after all the router
+app.use(notFound)
+app.use(errorHandler)
 
 //server
 const PORT = process.env.PORT || 5001;
